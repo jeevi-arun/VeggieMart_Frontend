@@ -63,7 +63,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-6">
           <Link to="/" className="hover:underline">Home</Link>
           <Link to="/products" className="hover:underline">Products</Link>
-          <Link to="/checkout" className="relative hover:underline">
+          <Link to="/cart" className="relative hover:underline">
             Cart
             {cart.length > 0 && (
               <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
@@ -98,7 +98,7 @@ export default function Navbar() {
         <div className="md:hidden bg-green-700 text-white px-6 py-4 space-y-4">
           <Link to="/" className="block hover:underline" onClick={() => setMenuOpen(false)}>Home</Link>
           <Link to="/products" className="block hover:underline" onClick={() => setMenuOpen(false)}>Products</Link>
-          <Link to="/checkout" className="block hover:underline" onClick={() => setMenuOpen(false)}>
+          <Link to="/cart" className="block hover:underline" onClick={() => setMenuOpen(false)}>
             Cart ({cart.length})
           </Link>
 
