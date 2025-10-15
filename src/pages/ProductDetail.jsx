@@ -8,6 +8,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [selectedKg, setSelectedKg] = useState(2);
   const { addToCart } = useContext(CartContext);
+  
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -20,7 +21,7 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id]); 
 
   if (!product) return <p className="p-6 text-gray-500">Loading...</p>;
 
