@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../config/firebase"; 
+import { auth } from "../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default function CheckoutPage() {
   const { cart = [], setCart } = useContext(CartContext);
   const [subtotal, setSubtotal] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(0);
-  const [user, setUser] = useState(null); // Track logged-in user
+  const [user, setUser] = useState(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -20,12 +20,12 @@ export default function CheckoutPage() {
     paymentMethod: "cod",
     cardNumber: "",
     expiry: "",
-    cvv: ""
+    cvv: "",
   });
 
   const navigate = useNavigate();
 
-  //  Track authentication state
+  // Track authentication
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -33,18 +33,19 @@ export default function CheckoutPage() {
     return () => unsubscribe();
   }, []);
 
-  //  Calculate subtotal and delivery fee
+  // Calculate subtotal + delivery
   useEffect(() => {
     const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
     setSubtotal(total);
-    setDeliveryFee(total > 1000 ? 0 : 50); // Free delivery if subtotal > 1000
+    setDeliveryFee(total > 1000 ? 0 : 50);
   }, [cart]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ Save order to localStorage and navigate to Orders page
   const handlePlaceOrder = (e) => {
     e.preventDefault();
 
@@ -54,13 +55,35 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (cart.length === 0) return alert("Your cart is empty!");
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
 
-    setOrderPlaced(true);
+    const newOrder = {
+      id: Date.now(),
+      userEmail: user.email,
+      items: cart,
+      totalAmount: subtotal + deliveryFee,
+      deliveryFee,
+      date: new Date().toLocaleString(),
+      shippingInfo: formData,
+      paymentMethod: formData.paymentMethod,
+      status: "Confirmed",
+    };
+
+    // 🟢 Save to localStorage (mock order database)
+    const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
+    localStorage.setItem("orders", JSON.stringify([...existingOrders, newOrder]));
+
+    // Clear cart
     setCart([]);
     localStorage.removeItem("cart");
+
+    setOrderPlaced(true);
   };
 
+  // ✅ Order placed success page
   if (orderPlaced) {
     return (
       <div className="max-w-6xl mx-auto p-6 text-center">
@@ -68,8 +91,12 @@ export default function CheckoutPage() {
         <p className="mb-4">
           Thank you, {user?.email || "Customer"}! Your order has been placed successfully.
         </p>
-       
-
+        <button
+          onClick={() => navigate("/orders")}
+          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition mr-2"
+        >
+          View My Orders
+        </button>
         <button
           onClick={() => navigate("/")}
           className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition"
@@ -84,17 +111,17 @@ export default function CheckoutPage() {
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
       <div className="flex flex-col md:flex-row gap-6">
-        {/*  Shipping & Payment Form */}
+        {/* Shipping & Payment Form */}
         <form
           className="flex-1 p-4 border rounded shadow flex flex-col gap-4"
           onSubmit={handlePlaceOrder}
         >
           <h2 className="text-xl font-bold mb-2">Shipping Information</h2>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="border p-2 rounded"/>
-          <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Address" required className="border p-2 rounded"/>
-          <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="City" required className="border p-2 rounded"/>
-          <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="Pincode" required className="border p-2 rounded"/>
-          <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="border p-2 rounded"/>
+          <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="border p-2 rounded" />
+          <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Address" required className="border p-2 rounded" />
+          <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="City" required className="border p-2 rounded" />
+          <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="Pincode" required className="border p-2 rounded" />
+          <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="border p-2 rounded" />
 
           <h2 className="text-xl font-bold mt-4 mb-2">Payment Method</h2>
           <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} className="border p-2 rounded">
@@ -110,18 +137,15 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition mt-4"
-          >
+          <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition mt-4">
             Place Order
           </button>
         </form>
 
-        {/*  Order Summary */}
+        {/* Order Summary */}
         <div className="md:w-1/3 p-4 border rounded shadow flex flex-col gap-2">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-          {cart.map(item => (
+          {cart.map((item) => (
             <div key={item._id} className="flex justify-between">
               <p>{item.name} × {item.quantity}</p>
               <p>Rs.{(item.price * item.quantity).toFixed(2)}</p>

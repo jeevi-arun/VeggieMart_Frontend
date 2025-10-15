@@ -25,7 +25,23 @@ export default function CartPage() {
     navigate("/checkout");
   };
 
-  if (cart.length === 0) return <p className="p-6 text-gray-500">Your cart is empty.</p>;
+  const handleViewOrders = () => {
+    navigate("/orders");
+  };
+
+  if (cart.length === 0) 
+       return (
+      <div className="p-6 text-center">
+        <p className="text-gray-500 mb-4">Your cart is empty.</p>
+        <button
+          onClick={handleViewOrders}
+          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition"
+        >
+          View My Orders
+        </button>
+      </div>)
+
+ 
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -75,6 +91,13 @@ export default function CartPage() {
           >
             Proceed to Checkout
           </button>
+
+             <button
+              onClick={handleViewOrders}
+              className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition"
+            >
+              View Orders
+            </button>
         </div>
       </div>
     </div>

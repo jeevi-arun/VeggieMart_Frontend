@@ -43,7 +43,7 @@ export default function Navbar() {
         </Link>
 
         {/* Search */}
-        <form
+        <div
           onSubmit={handleSearch}
           className="flex items-center bg-transparent border border-gray-400 rounded-2xl overflow-hidden ml-4"
         >
@@ -52,12 +52,12 @@ export default function Navbar() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products..."
-            className="px-3 py-1 text-black outline-none w-40 md:w-60"
+            className="px-3 py-1 text-black  w-40 md:w-60"
           />
           <button type="submit" className="text-black px-3 py-1">
             🔍
           </button>
-        </form>
+        </div>
 
         {/*  Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6">
@@ -99,7 +99,7 @@ export default function Navbar() {
           <Link to="/" className="block hover:underline" onClick={() => setMenuOpen(false)}>Home</Link>
           <Link to="/products" className="block hover:underline" onClick={() => setMenuOpen(false)}>Products</Link>
           <Link to="/cart" className="block hover:underline" onClick={() => setMenuOpen(false)}>
-            Cart ({cart.length})
+            Cart ({cart.length})+
           </Link>
 
           {user ? (
